@@ -31,12 +31,12 @@ def test__init__():
     # `get_ca_certs_path` needs to be mocked because it's used as fallback when
     # init_config doesn't contain `ca_certs`
     with mock.patch('datadog_checks.http_check.http_check.get_ca_certs_path', return_value='bar'):
-        http_check = HTTPCheck('http_check', init_config, {})
+        http_check = HTTPCheck('http_check', init_config, [{}])
         assert http_check.ca_certs == 'bar'
 
     # normal case
     init_config = {'ca_certs': 'foo'}
-    http_check = HTTPCheck('http_check', init_config, {})
+    http_check = HTTPCheck('http_check', init_config, [{}])
     assert http_check.ca_certs == 'foo'
 
 
@@ -187,8 +187,7 @@ def test_check_ssl(aggregator, http_check):
 def test_check_ssl_expire_error(aggregator, http_check):
     with mock.patch('ssl.SSLSocket.getpeercert', side_effect=Exception()):
         # Run the check for the one instance configured with days left
-        #http_check = HTTPCheck('', {}, [CONFIG_EXPIRED_SSL['instances'][0]])
-        #import pdb; pdb.set_trace()
+        http_check = HTTPCheck('', {}, [CONFIG_EXPIRED_SSL['instances'][0]])
         http_check.check(CONFIG_EXPIRED_SSL['instances'][0])
 
     expired_cert_tags = ['url:https://github.com', 'instance:expired_cert']
